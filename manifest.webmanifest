@@ -1,0 +1,16 @@
+{
+  "name": "Gabarito · estudo ativo",
+  "short_name": "Gabarito",
+  "description": "Resolução de questões de concursos com correção comentada e questões originais no estilo da banca.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F5F8",
+  "theme_color": "#1D4E89",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1D4E89">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gabarito">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Gabarito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<style>
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --sunk:#EAEEF3; --ink:#16202C; --muted:#5A6676; --line:#D9E0E7;
+  --accent:#1D4E89; --accent-ink:#FFFFFF; --accent-soft:#E2EBF6;
+  --ok:#1C7548; --ok-soft:#E1F2E8; --bad:#B42318; --bad-soft:#FBE8E6; --warn:#8A5A00; --warn-soft:#FBF1DC;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1319; --surface:#161D25; --sunk:#1D2630; --ink:#E5EAF0; --muted:#95A2B1; --line:#2A3441;
+    --accent:#86B4EC; --accent-ink:#0E1319; --accent-soft:#1B2B3E;
+    --ok:#5BC08C; --ok-soft:#152A20; --bad:#F2806F; --bad-soft:#35191A; --warn:#E3B45C; --warn-soft:#30260F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1319; --surface:#161D25; --sunk:#1D2630; --ink:#E5EAF0; --muted:#95A2B1; --line:#2A3441;
+  --accent:#86B4EC; --accent-ink:#0E1319; --accent-soft:#1B2B3E;
+  --ok:#5BC08C; --ok-soft:#152A20; --bad:#F2806F; --bad-soft:#35191A; --warn:#E3B45C; --warn-soft:#30260F;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:22px;font-weight:600}
+h2{font-size:18px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.label{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack-lg{display:flex;flex-direction:column;gap:24px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.num{font-variant-numeric:tabular-nums}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{padding-block:12px;display:flex;align-items:center;gap:12px;min-height:56px}
+.brand{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;cursor:pointer;background:none;border:0;color:var(--ink);padding:0}
+.brand .mark{width:22px;height:22px;border-radius:6px;background:var(--accent);color:var(--accent-ink);font:500 12px/22px var(--mono);text-align:center}
+.top .crumb{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 14px/1 var(--sans);padding:10px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.lg{padding:13px 18px;font-size:15px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.plan-card{display:flex;flex-direction:column;gap:6px;text-align:left;width:100%;cursor:pointer;font:inherit;color:inherit}
+.plan-card:hover{border-color:var(--accent)}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:3px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.accent{background:var(--accent-soft);color:var(--accent)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin-top:8px}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;font:500 14px var(--sans);color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field > span{font-size:13px;font-weight:500;color:var(--muted)}
+input[type=text],input[type=date],select,textarea{font:15px/1.4 var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:90px;resize:vertical;font-family:var(--mono);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.filebox{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px dashed var(--line);border-radius:8px;padding:10px 12px}
+.filebox input[type=file]{font-size:13px;max-width:100%}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--muted)}
+
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.item{display:flex;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .grow{flex:1;min-width:0}
+.item .t{font-weight:500;overflow-wrap:anywhere}
+.empty{padding:18px;color:var(--muted);font-size:14px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.stat b{display:block;font:600 22px var(--sans);font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted)}
+@media (max-width:420px){.stat b{font-size:19px}}
+
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.mode{text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;font:inherit;color:inherit}
+.mode:hover{border-color:var(--accent)}
+.mode b{font-weight:600}
+.mode small{color:var(--muted);font-size:13px}
+
+/* study */
+.qhead{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.progress{height:4px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.support{font-family:var(--serif);font-size:15.5px;line-height:1.6;white-space:pre-wrap;background:var(--sunk);border-radius:8px;padding:14px 16px;max-height:340px;overflow:auto}
+.stem{font-family:var(--serif);font-size:18px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.alts{display:flex;flex-direction:column;gap:8px}
+.alt{appearance:none;display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:16px/1.5 var(--serif);cursor:pointer;transition:border-color .12s,background .12s}
+.alt:hover:not(:disabled){border-color:var(--accent)}
+.alt .l{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);font:500 13px/25px var(--mono);text-align:center;color:var(--muted);margin-top:1px}
+.alt .tx{white-space:pre-wrap;overflow-wrap:anywhere}
+.alt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.alt.sel .l{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.alt.right{border-color:var(--ok);background:var(--ok-soft)}
+.alt.right .l{border-color:var(--ok);background:var(--ok);color:#fff}
+.alt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.alt.wrong .l{border-color:var(--bad);background:var(--bad);color:#fff}
+.alt:disabled{cursor:default}
+.verdict{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.verdict.ok{background:var(--ok-soft)}
+.verdict.bad{background:var(--bad-soft)}
+.verdict h3{font-size:16px}
+.verdict.ok h3{color:var(--ok)} .verdict.bad h3{color:var(--bad)}
+.expl{font-size:15px;line-height:1.6;max-width:68ch}
+.expl p+p,.expl ul{margin-top:8px}
+.expl ul{padding-left:20px;margin-bottom:0}
+.thinking{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.bar{position:sticky;bottom:0;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.kbd{font:500 11px var(--mono);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--muted)}
+.note{border-radius:8px;padding:10px 12px;font-size:13.5px;background:var(--warn-soft);color:var(--warn)}
+.note.info{background:var(--accent-soft);color:var(--accent)}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.days{display:flex;align-items:flex-end;gap:4px;height:90px;padding-top:6px}
+.days div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%}
+.days i{display:block;width:100%;max-width:26px;border-radius:3px 3px 0 0;background:var(--accent-soft);position:relative;overflow:hidden}
+.days i s{position:absolute;left:0;right:0;bottom:0;background:var(--accent);text-decoration:none}
+.days span{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{text-align:left;padding:8px 10px;border-top:1px solid var(--line)}
+.tbl th{font-size:12px;color:var(--muted);font-weight:600;border-top:0}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
+.scroll-x{overflow-x:auto}
+.qprev{font-size:13.5px}
+.qprev .item{align-items:flex-start}
+.qprev select{width:auto;padding:4px 6px;font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.job{display:flex;flex-direction:column;gap:8px}
+.job .progress{height:6px}
+details summary{cursor:pointer;font-weight:500}
+@media (max-width:600px){.hide-sm{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------- utilidades ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const bytes = s => new TextEncoder().encode(s).length;
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const clone = o => JSON.parse(JSON.stringify(o));
+
+function md(s){
+  const lines = esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').split(/\n/);
+  let out = '', inList = false, para = [];
+  const flush = () => { if (para.length){ out += '<p>' + para.join('<br>') + '</p>'; para = []; } };
+  for (const raw of lines){
+    const l = raw.trim();
+    const m = l.match(/^[-•*]\s+(.*)/);
+    if (m){ flush(); if (!inList){ out += '<ul>'; inList = true; } out += '<li>' + m[1] + '</li>'; continue; }
+    if (inList){ out += '</ul>'; inList = false; }
+    if (!l) flush(); else para.push(l.replace(/^#+\s*/, ''));
+  }
+  flush(); if (inList) out += '</ul>';
+  return out;
+}
+
+const KINDS = {
+  edital: 'Edital, consolidações e retificações',
+  legislacao: 'Legislação seca',
+  sumula: 'Súmulas, OJs e teses',
+  jurisprudencia: 'Jurisprudência',
+  didatico: 'Material didático'
+};
+const MODES = {
+  todas: ['Todas as questões', 'Sorteio entre todas as provas ativas'],
+  banca: ['Só da banca-alvo', 'Apenas provas da banca do concurso'],
+  ineditas: ['Ainda não respondidas', 'Questões que você nunca viu'],
+  erros: ['Revisar erros', 'Questões cuja última resposta foi errada']
+};
+
+/* ---------- estado ---------- */
+const S = {
+  ready: false, db: null, assets: null, sample: null, imgOK: false,
+  plans: [], plansLoaded: false,
+  view: 'home', planId: null, tab: 'estudar',
+  materials: [], banks: [], progress: null, progressLoaded: false,
+  unsub: [],
+  f: {}, files: {},
+  confirm: null,
+  busy: null, job: null, study: null,
+  texts: new Map(), index: new Map(),
+  toast: null, aiOff: false
+};
+let wq = Promise.resolve();
+const queueWrite = fn => (wq = wq.then(fn).catch(e => { console.error(e); toast(dbMsg(e)); }));
+const dbMsg = e => e?.code === 'quota_exceeded' ? 'Limite de armazenamento atingido. Exclua materiais ou provas antigas.' : 'Não foi possível salvar. Tente novamente.';
+const plan = () => S.plans.find(p => p.id === S.planId) || null;
+const planRef = (id = S.planId) => S.db.doc('plans/' + id);
+
+function toast(msg){ S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; render(); }, 3800); }
+
+/* ---------- armazenamento local (IndexedDB) ---------- */
+const parentOf = p => p.split('/').slice(0, -1).join('/');
+const LocalDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('gabarito', 1);
+    r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('docs').createIndex('parent', 'parent'); d.createObjectStore('blobs'); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => { dbp = null; rej(r.error); };
+  }));
+  const req = (store, mode, fn) => open().then(d => new Promise((res, rej) => {
+    const t = d.transaction(store, mode); let out;
+    const r = fn(t.objectStore(store));
+    if (r) r.onsuccess = () => { out = r.result; };
+    t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || { code: 'invalid_argument' });
+  }));
+  const listeners = new Set();
+  const docSnap = (path, rec) => ({ id: path.split('/').pop(), exists: !!rec, data: () => rec ? rec.data : undefined });
+  const listCol = async col => {
+    const d = await open();
+    return new Promise((res, rej) => {
+      const out = [], t = d.transaction('docs'), r = t.objectStore('docs').index('parent').openCursor(IDBKeyRange.only(col));
+      r.onsuccess = () => { const c = r.result; if (!c) return res(out); out.push(docSnap(c.primaryKey, c.value)); c.continue(); };
+      r.onerror = () => rej(r.error);
+    });
+  };
+  const colSnap = docs => ({ docs, size: docs.length, empty: !docs.length });
+  const refresh = async l => {
+    try { const v = l.kind === 'doc' ? docSnap(l.path, await req('docs', 'readonly', s => s.get(l.path))) : colSnap(await listCol(l.path)); if (listeners.has(l)) l.fn(v); }
+    catch (e){ console.error(e); }
+  };
+  const notify = path => { for (const l of listeners) if ((l.kind === 'doc' && l.path === path) || (l.kind === 'col' && l.path === parentOf(path))) refresh(l); };
+  const merge = (t, src) => { for (const [k, v] of Object.entries(src)){ if (v && typeof v === 'object' && !Array.isArray(v) && t[k] && typeof t[k] === 'object' && !Array.isArray(t[k])) merge(t[k], v); else t[k] = v; } return t; };
+  const docRef = path => ({
+    id: path.split('/').pop(), path,
+    get: async () => docSnap(path, await req('docs', 'readonly', s => s.get(path))),
+    set: async data => { await req('docs', 'readwrite', s => s.put({ parent: parentOf(path), data: clone(data) }, path)); notify(path); },
+    update: async data => {
+      await req('docs', 'readwrite', s => { const r = s.get(path); r.onsuccess = () => { if (!r.result){ r.transaction.abort(); return; } merge(r.result.data, clone(data)); s.put(r.result, path); }; });
+      notify(path);
+    },
+    delete: async () => { await req('docs', 'readwrite', s => s.delete(path)); notify(path); },
+    onSnapshot(fn){ const l = { kind: 'doc', path, fn }; listeners.add(l); refresh(l); return () => listeners.delete(l); },
+    collection: sub => colRef(path + '/' + sub)
+  });
+  const colRef = path => ({
+    path,
+    doc: id => docRef(path + '/' + (id || uid())),
+    get: async () => colSnap(await listCol(path)),
+    onSnapshot(fn){ const l = { kind: 'col', path, fn }; listeners.add(l); refresh(l); return () => listeners.delete(l); },
+    add: async data => { const r = docRef(path + '/' + uid()); await r.set(data); return r; }
+  });
+  const dump = async store => {
+    const d = await open();
+    return new Promise((res, rej) => { const out = [], r = d.transaction(store).objectStore(store).openCursor(); r.onsuccess = () => { const c = r.result; if (!c) return res(out); out.push([c.key, c.value]); c.continue(); }; r.onerror = () => rej(r.error); });
+  };
+  return { open, req, dump, doc: docRef, collection: colRef };
+})();
+const LocalAssets = {
+  async upload(blob, opts = {}){
+    const id = uid(), type = opts.type || blob.type || 'application/octet-stream';
+    const rec = type.startsWith('text/') ? { type, text: await blob.text() } : { type, buf: await blob.arrayBuffer() };
+    await LocalDB.req('blobs', 'readwrite', s => s.put(rec, id));
+    return { id };
+  },
+  delete: id => LocalDB.req('blobs', 'readwrite', s => s.delete(id)),
+  get: id => LocalDB.req('blobs', 'readonly', s => s.get(id))
+};
+
+/* ---------- configurações ---------- */
+function loadSettings(){ try { return JSON.parse(localStorage.getItem('gabarito.settings')) || {}; } catch { return {}; } }
+function saveSettings(patch){ S.settings = { ...S.settings, ...patch }; try { localStorage.setItem('gabarito.settings', JSON.stringify(S.settings)); } catch {} }
+const GEM = 'https://generativelanguage.googleapis.com/v1beta/';
+async function listModels(key){
+  let r;
+  try { r = await fetch(GEM + 'models?pageSize=1000', { headers: { 'x-goog-api-key': key } }); } catch { throw { code: 'offline' }; }
+  if (!r.ok) throw { code: [400, 401, 403].includes(r.status) ? 'bad_key' : 'upstream_error' };
+  const j = await r.json();
+  return (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent') && /^models\/gemini/.test(m.name) && !/(embed|tts|image|audio|live|native|robotics|computer)/i.test(m.name)).map(m => m.name.replace('models/', ''));
+}
+function pickDefaults(models){
+  const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0);
+  const stable = models.filter(m => !/preview|exp/i.test(m)), pool = stable.length ? stable : models;
+  const best = re => pool.filter(m => re.test(m)).sort((a, b) => ver(b) - ver(a))[0];
+  return { main: best(/-flash$/) || best(/flash/) || pool[0], quick: best(/flash-lite$/) || best(/-flash$/) || pool[0] };
+}
+
+/* ---------- Gemini ---------- */
+const b64 = blob => new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.onerror = () => rej(f.error); f.readAsDataURL(blob); });
+const sleep = (ms, signal) => new Promise((res, rej) => { const t = setTimeout(res, ms); signal?.addEventListener('abort', () => { clearTimeout(t); rej({ code: 'cancelled' }); }, { once: true }); });
+function parseLoose(t){
+  try { return JSON.parse(t); } catch {}
+  const f = t.match(/```(?:json)?\s*([\s\S]*?)```/); if (f){ try { return JSON.parse(f[1]); } catch {} }
+  const a = t.search(/[\[{]/), b = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+  if (a >= 0 && b > a) return JSON.parse(t.slice(a, b + 1));
+  throw new Error('json');
+}
+async function gemini(prompt, opts = {}, json = false){
+  const key = S.settings.key; if (!key) throw { code: 'no_key' };
+  const model = (opts.modelTier === 'quick' ? S.settings.quick : S.settings.main) || S.settings.main || 'gemini-2.5-flash';
+  const parts = [{ text: prompt }];
+  for (const img of [].concat(opts.images || [])) parts.push({ inline_data: { mime_type: img.type || 'image/jpeg', data: await b64(img) } });
+  const body = { contents: [{ role: 'user', parts }], generationConfig: { temperature: json ? 0.2 : 0.5, maxOutputTokens: 32768 } };
+  if (json) body.generationConfig.responseMimeType = 'application/json';
+  const stream = !!opts.onText;
+  const url = GEM + 'models/' + encodeURIComponent(model) + (stream ? ':streamGenerateContent?alt=sse' : ':generateContent');
+  for (let attempt = 0; ; attempt++){
+    let r;
+    try { r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body), signal: opts.signal }); }
+    catch (e){ if (e?.name === 'AbortError') throw { code: 'cancelled' }; throw { code: 'offline' }; }
+    if (r.status === 429 || r.status === 503){
+      const j = await r.json().catch(() => null);
+      const daily = /per ?day|PerDay/i.test(JSON.stringify(j || ''));
+      if (attempt < 2 && !daily){
+        const d = (j?.error?.details || []).find(x => x.retryDelay)?.retryDelay;
+        await sleep(Math.min(60000, (parseFloat(d) || 15 * (attempt + 1)) * 1000 + 500), opts.signal);
+        continue;
+      }
+      throw { code: 'rate_limited' };
+    }
+    if (!r.ok){
+      const j = await r.json().catch(() => null), msg = j?.error?.message || '';
+      if ([401, 403].includes(r.status) || (r.status === 400 && /api key/i.test(msg))) throw { code: 'bad_key', message: msg };
+      if (r.status === 404) throw { code: 'bad_model', message: msg };
+      throw { code: 'upstream_error', message: msg };
+    }
+    let text = '', finish = '', blocked = false;
+    const take = j => {
+      if (j?.promptFeedback?.blockReason) blocked = true;
+      const c = j?.candidates?.[0]; if (c?.finishReason) finish = c.finishReason;
+      return (c?.content?.parts || []).filter(p => !p.thought && p.text).map(p => p.text).join('');
+    };
+    if (stream){
+      const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+      try {
+        for (;;){
+          const { value, done } = await rd.read(); if (done) break;
+          buf += dec.decode(value, { stream: true });
+          let i;
+          while ((i = buf.indexOf('\n')) >= 0){
+            const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+            if (!line.startsWith('data:')) continue;
+            let j; try { j = JSON.parse(line.slice(5)); } catch { continue; }
+            const delta = take(j);
+            if (delta){ text += delta; try { opts.onText({ text, delta }); } catch {} }
+          }
+        }
+      } catch (e){ if (e?.name === 'AbortError') throw { code: 'cancelled', text }; throw { code: 'upstream_error', text }; }
+    } else {
+      text = take(await r.json());
+    }
+    if (blocked || finish === 'SAFETY' || finish === 'PROHIBITED_CONTENT') throw { code: 'refused' };
+    if (!text.trim()) throw { code: 'upstream_error' };
+    return { text, truncated: finish === 'MAX_TOKENS' };
+  }
+}
+function makeSample(){
+  const f = (p, o) => gemini(p, o, false);
+  f.json = async (p, o = {}) => {
+    const { text, truncated } = await gemini(p, { ...o, onText: undefined }, true);
+    try { return parseLoose(text); } catch { throw { code: 'invalid_json', text, truncated }; }
+  };
+  return f;
+}
+
+function openPlan(id){
+  S.unsub.forEach(u => u()); S.unsub = [];
+  Object.assign(S, { planId: id, view: 'plan', tab: 'estudar', materials: [], banks: [], progress: null, progressLoaded: false, job: null, study: null, confirm: null });
+  S.texts.clear(); S.index.clear();
+  const ref = planRef(id);
+  S.unsub.push(ref.collection('materials').onSnapshot(s => { S.materials = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)); render(); }));
+  S.unsub.push(ref.collection('banks').onSnapshot(s => { S.banks = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)); render(); }));
+  S.unsub.push(ref.collection('progress').doc('main').onSnapshot(d => { S.progress = d.exists ? d.data() : null; S.progressLoaded = true; render(); }));
+  window.scrollTo(0, 0);
+  render();
+}
+function goHome(){
+  S.unsub.forEach(u => u()); S.unsub = [];
+  if (S.study?.ctl) S.study.ctl.abort();
+  Object.assign(S, { view: 'home', planId: null, study: null, job: null, confirm: null });
+  render();
+}
+
+/* ---------- texto de arquivos ---------- */
+async function readFile(file, onProg, allowOcr){
+  const name = file.name.toLowerCase();
+  if (name.endsWith('.pdf') || file.type === 'application/pdf'){
+    if (!window.pdfjsLib) throw new Error('O leitor de PDF não carregou. Recarregue a página.');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++){
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      let s = '';
+      for (const it of tc.items){ s += it.str; if (it.hasEOL) s += '\n'; }
+      pages.push(s);
+      onProg?.(`Lendo ${file.name}: página ${i} de ${pdf.numPages}`, i / pdf.numPages);
+    }
+    let text = pages.join('\n\n');
+    const dense = text.replace(/\s/g, '').length / Math.max(1, pdf.numPages);
+    if (dense < 120){
+      if (allowOcr && S.settings.key) text = await ocrPdf(pdf, file.name, onProg);
+      else throw new Error(`"${file.name}" parece ser um PDF escaneado (sem texto selecionável). Marque a opção de transcrição com o Gemini (exige a chave configurada) ou cole o texto.`);
+    }
+    return text;
+  }
+  const t = await file.text();
+  if (name.endsWith('.html') || name.endsWith('.htm')){
+    const d = new DOMParser().parseFromString(t, 'text/html'); return d.body.innerText || d.body.textContent || '';
+  }
+  return t;
+}
+
+async function ocrPdf(pdf, fname, onProg){
+  const out = [];
+  const n = Math.min(pdf.numPages, 80);
+  for (let i = 1; i <= n; i++){
+    if (S.busy?.aborted || S.job?.aborted) throw { code: 'cancelled' };
+    onProg?.(`Transcrevendo ${fname}: página ${i} de ${n}`, i / n);
+    const page = await pdf.getPage(i);
+    const vp0 = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: Math.min(2.2, 1500 / vp0.width) });
+    const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.85));
+    const ctl = new AbortController(); S.busy && (S.busy.ctl = ctl); S.job?.ctls.push(ctl);
+    const { text } = await S.sample('Transcreva fielmente, em inteiro teor, todo o texto desta página digitalizada (documento de concurso público brasileiro). Preserve a numeração das questões, letras das alternativas e parágrafos. Não comente, não resuma, não corrija. Se houver duas colunas, transcreva a coluna da esquerda inteira e depois a da direita. Responda somente com o texto transcrito.', { images: [blob], modelTier: 'default', signal: ctl.signal });
+    out.push(text);
+  }
+  return out.join('\n\n');
+}
+
+async function uploadText(text){
+  return (await S.assets.upload(new Blob([text], { type: 'text/plain' }), { type: 'text/plain' })).id;
+}
+async function getText(assetId){
+  if (!assetId) return '';
+  if (S.texts.has(assetId)) return S.texts.get(assetId);
+  try { const rec = await LocalAssets.get(assetId); const t = rec?.text ?? (rec?.buf ? new TextDecoder().decode(rec.buf) : ''); S.texts.set(assetId, t); return t; }
+  catch { return ''; }
+}
+
+/* ---------- busca nos materiais ---------- */
+const STOP = new Set('para pela pelo pelos pelas como mais quando onde qual quais sobre entre desde pois essa esse isso esta este isto aquele aquela seus suas sera serao deve devem pode podem ainda apenas sendo sido caso cada todo toda todos todas outro outra outros outras mesmo mesma assim tambem forma termos acordo alternativa correta incorreta assinale questao item julgue seguinte seguintes afirmativa afirmativas conforme segundo nao sim'.split(' '));
+const tokens = s => norm(s).split(/[^a-z0-9º]+/).filter(w => w.length >= 4 && !STOP.has(w));
+async function buildIndex(m){
+  if (S.index.has(m.id)) return S.index.get(m.id);
+  const text = await getText(m.textAsset);
+  const chunks = []; let cur = '';
+  for (const line of text.split(/\n/)){
+    if (cur.length + line.length > 800 && cur.length > 200){ chunks.push(cur); cur = ''; }
+    cur += line + '\n';
+  }
+  if (cur.trim()) chunks.push(cur);
+  const idx = chunks.map(c => ({ c, t: new Set(tokens(c)), n: norm(c) }));
+  S.index.set(m.id, idx);
+  return idx;
+}
+async function findExcerpts(query, max = 12000){
+  const mats = S.materials.filter(m => m.kind !== 'edital' && m.textAsset);
+  if (!mats.length) return '';
+  const all = [];
+  for (const m of mats){ for (const e of await buildIndex(m)) all.push({ ...e, title: m.title }); }
+  const q = [...new Set(tokens(query))];
+  const df = {}; for (const w of q){ df[w] = 0; for (const e of all) if (e.t.has(w)) df[w]++; }
+  const arts = [...norm(query).matchAll(/art(?:igo)?\.?\s*(\d+)/g)].map(m => m[1]);
+  const sums = [...norm(query).matchAll(/sumula\s*(?:n[º.o]*\s*)?(\d+)/g)].map(m => m[1]);
+  for (const e of all){
+    let s = 0;
+    for (const w of q) if (e.t.has(w)) s += Math.log(1 + all.length / (1 + df[w]));
+    for (const a of arts) if (new RegExp('art\\.?\\s*' + a + '\\b').test(e.n)) s += 8;
+    for (const a of sums) if (new RegExp('sumula\\s*(n[º.o]*\\s*)?' + a + '\\b').test(e.n)) s += 8;
+    e.s = s;
+  }
+  all.sort((a, b) => b.s - a.s);
+  let out = '', used = 0;
+  for (const e of all){
+    if (e.s <= 0 || used + e.c.length > max) continue;
+    out += `\n[${e.title}]\n${e.c.trim()}\n`; used += e.c.length;
+    if (used > max * 0.9) break;
+  }
+  return out;
+}
+
+/* ---------- ações ---------- */
+const A = {};
+A.home = goHome;
+A.openPlan = d => openPlan(d.id);
+A.tab = d => { S.tab = d.t; S.confirm = null; render(); };
+A.newPlan = () => { S.f = { nome: '', cargo: '', orgao: '', banca: '', data: '', notas: '' }; S.view = 'planForm'; S.editing = null; render(); };
+A.editPlan = () => { const p = plan(); S.f = { nome: p.nome, cargo: p.cargo || '', orgao: p.orgao || '', banca: p.banca || '', data: p.data || '', notas: p.notas || '' }; S.editing = p.id; S.view = 'planForm'; render(); };
+A.cancelForm = () => { S.view = S.editing ? 'plan' : 'home'; render(); };
+A.savePlan = async () => {
+  const f = S.f; if (!f.nome.trim()){ toast('Dê um nome ao plano.'); return; }
+  const body = { nome: f.nome.trim(), cargo: f.cargo.trim(), orgao: f.orgao.trim(), banca: f.banca.trim(), data: f.data, notas: f.notas.trim() };
+  try {
+    if (S.editing){ await planRef(S.editing).update(body); S.view = 'plan'; render(); }
+    else { const ref = S.db.collection('plans').doc(); await ref.set({ ...body, createdAt: Date.now() }); openPlan(ref.id); }
+  } catch (e){ toast(dbMsg(e)); }
+};
+A.arm = d => { S.confirm = d.k; render(); };
+A.deletePlan = async () => {
+  const id = S.planId; S.busy = { label: 'Excluindo plano…' }; render();
+  try {
+    const ref = planRef(id);
+    for (const col of ['materials', 'banks', 'progress', 'expl']){
+      const snap = await ref.collection(col).get();
+      for (const d of snap.docs){
+        const x = d.data();
+        for (const a of [x.textAsset, x.fileAsset]) if (a) await S.assets?.delete(a).catch(() => {});
+        await ref.collection(col).doc(d.id).delete();
+      }
+    }
+    await ref.delete();
+    goHome();
+  } catch (e){ toast(dbMsg(e)); }
+  S.busy = null; render();
+};
+
+A.addMaterial = async () => {
+  const f = S.f; const files = S.files.mat || [];
+  const pasted = (f.matText || '').trim();
+  if (!files.length && !pasted){ toast('Escolha um arquivo ou cole o texto.'); return; }
+  if (!S.assets){ toast('Armazenamento de arquivos indisponível nesta visualização.'); return; }
+  S.busy = { label: 'Preparando…', p: 0 }; render();
+  const onProg = (label, p) => { S.busy = { ...S.busy, label, p }; render(); };
+  try {
+    const items = [];
+    for (const file of files) items.push({ title: files.length === 1 && f.matTitle?.trim() ? f.matTitle.trim() : file.name.replace(/\.[^.]+$/, ''), file, text: await readFile(file, onProg, f.ocr !== false) });
+    if (pasted) items.push({ title: f.matTitle?.trim() || 'Texto colado', text: pasted });
+    for (const it of items){
+      onProg('Salvando ' + it.title + '…', 1);
+      const textAsset = await uploadText(it.text);
+      let fileAsset = null;
+      if (it.file && it.file.type === 'application/pdf' && it.file.size < 20e6){ try { fileAsset = (await S.assets.upload(it.file, { type: 'application/pdf' })).id; } catch {} }
+      await planRef().collection('materials').doc().set({ kind: f.matKind || 'legislacao', title: it.title, textAsset, fileAsset, fileName: it.file?.name || null, chars: it.text.length, createdAt: Date.now() });
+    }
+    S.files.mat = []; S.f.matText = ''; S.f.matTitle = '';
+    toast(items.length > 1 ? items.length + ' materiais adicionados.' : 'Material adicionado.');
+  } catch (e){ if (e?.code !== 'cancelled') toast(e?.code ? sampleMsg(e) : (e?.message || 'Não foi possível ler o arquivo.')); }
+  S.busy = null; render();
+};
+A.delMaterial = async d => {
+  const m = S.materials.find(x => x.id === d.id); S.confirm = null;
+  try {
+    await planRef().collection('materials').doc(d.id).delete();
+    for (const a of [m?.textAsset, m?.fileAsset]) if (a) S.assets?.delete(a).catch(() => {});
+    S.index.delete(d.id);
+  } catch (e){ toast(dbMsg(e)); }
+};
+A.stopBusy = () => { if (S.busy){ S.busy.aborted = true; S.busy.ctl?.abort(); } if (S.job){ S.job.aborted = true; S.job.ctls?.forEach(c => c.abort()); } };
+
+/* ---------- importação de provas ---------- */
+A.startImport = async () => {
+  const f = S.f, p = plan();
+  const prova = S.files.prova?.[0], gab = S.files.gab?.[0];
+  const provaText = (f.provaText || '').trim(), gabText = (f.gabText || '').trim();
+  if (!prova && !provaText){ toast('Anexe o PDF da prova ou cole o texto.'); return; }
+  if (!S.settings.key){ toast('Configure sua chave do Gemini em Configurações para importar provas.'); return; }
+  const meta = { title: (f.pTitle || '').trim() || (prova ? prova.name.replace(/\.[^.]+$/, '') : 'Prova'), banca: (f.pBanca || '').trim() || p.banca || '', orgao: (f.pOrgao || '').trim(), ano: (f.pAno || '').trim(), cargo: (f.pCargo || '').trim() || p.cargo || '' };
+  const job = S.job = { meta, stage: 'ler', label: 'Lendo arquivos…', p: 0, ctls: [], questions: [], warnings: [] };
+  render();
+  const onProg = (label, pr) => { job.label = label; job.p = pr; render(); };
+  try {
+    const text = prova ? await readFile(prova, onProg, f.ocr !== false) : provaText;
+    const gtext = gab ? await readFile(gab, onProg, f.ocr !== false) : gabText;
+    job.stage = 'extrair';
+    const qs = await extractQuestions(text, meta, job, onProg);
+    if (job.aborted) throw { code: 'cancelled' };
+    if (!qs.length) throw new Error('Nenhuma questão foi reconhecida. Verifique se o arquivo é o caderno de prova.');
+    onProg('Lendo o gabarito…', 1);
+    const src = gtext || text.slice(-30000);
+    const g = await parseGabarito(src, meta, qs, job, !gtext);
+    for (const q of qs){
+      if (g.annulled.includes(q.n)) q.annulled = true;
+      else if (g.answers[q.n]) q.answer = g.answers[q.n];
+    }
+    if (g.note) job.warnings.push('Gabarito: ' + g.note);
+    job.questions = qs; job.stage = 'revisar'; job.provaText = text; job.provaFile = prova || null; job.gabFile = gab || null;
+  } catch (e){
+    if (e?.code === 'cancelled'){ S.job = null; }
+    else { job.stage = 'erro'; job.error = e?.code ? sampleMsg(e) : (e?.message || 'Falha na importação.'); }
+  }
+  render();
+};
+function sampleMsg(e){
+  switch (e?.code){
+    case 'no_key': return 'Configure sua chave do Gemini em Configurações.';
+    case 'bad_key': return 'O Google recusou a chave do Gemini. Confira-a em Configurações.';
+    case 'bad_model': return 'O modelo escolhido não está disponível para sua chave. Escolha outro em Configurações.';
+    case 'rate_limited': return 'Limite gratuito do Gemini atingido por enquanto. Aguarde um minuto (ou até amanhã, se for o limite diário) e tente de novo.';
+    case 'refused': return 'O Gemini se recusou a responder a este conteúdo.';
+    case 'invalid_json': return 'O Gemini devolveu uma resposta fora do formato. Tente novamente.';
+    case 'offline': return 'Sem conexão com a internet.';
+    default: return 'Falha ao consultar o Gemini. Tente novamente.';
+  }
+}
+
+async function extractQuestions(text, meta, job, onProg){
+  const CH = 9000, OV = 2500, chunks = [];
+  text = text.replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+  for (let i = 0; i < text.length; i += CH - OV){ chunks.push(text.slice(i, i + CH)); if (i + CH >= text.length) break; }
+  const found = new Map(); let done = 0, failed = 0;
+  const run = async (chunk) => {
+    const prompt = `Você recebe um trecho de texto extraído de um caderno de prova de concurso público brasileiro (banca: ${meta.banca || 'não informada'}; órgão: ${meta.orgao || '-'}; cargo: ${meta.cargo || '-'}; ano: ${meta.ano || '-'}).
+Identifique as questões objetivas COMPLETAS do trecho e reproduza cada uma em INTEIRO TEOR, sem resumir, corrigir ou reescrever. Apenas junte linhas quebradas no meio de frases e descarte cabeçalhos, rodapés e números de página.
+
+Regras:
+- Ignore questões cujo enunciado ou alternativas estejam cortados no início ou no fim do trecho.
+- "n": número da questão na prova (inteiro).
+- Múltipla escolha: "alts" com todas as alternativas, na ordem, com letras maiúsculas ("A","B",...), sem a letra dentro de "t".
+- Itens de julgamento Certo/Errado (estilo Cebraspe): cada item numerado é uma questão; "alts" = [{"l":"C","t":"Certo"},{"l":"E","t":"Errado"}]; o texto-base ou comando comum vai em "text".
+- "text": texto de apoio necessário para responder (texto-base, caso concreto, tabela), em inteiro teor; "" se não houver.
+- "subject": disciplina provável (ex.: "Direito do Trabalho", "Língua Portuguesa").
+
+Responda somente com JSON: {"questions":[{"n":1,"text":"","stem":"enunciado","alts":[{"l":"A","t":"..."}],"subject":"..."}]}
+Se não houver questão completa, responda {"questions":[]}.
+
+TRECHO:
+<<<
+${chunk}
+>>>`;
+    for (const tier of ['quick', 'default']){
+      if (job.aborted) return;
+      const ctl = new AbortController(); job.ctls.push(ctl);
+      try {
+        const r = await S.sample.json(prompt, { modelTier: tier, signal: ctl.signal });
+        for (const q of (r?.questions || [])){
+          const n = parseInt(q.n, 10);
+          const alts = (q.alts || []).map(a => ({ l: String(a.l || '').trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 1), t: String(a.t || '').trim() })).filter(a => a.l && a.t);
+          if (!n || !q.stem || alts.length < 2) continue;
+          const nq = { id: 'q' + n, n, text: String(q.text || '').trim(), stem: String(q.stem).trim(), alts, subject: String(q.subject || '').trim() };
+          const old = found.get(n);
+          if (!old || JSON.stringify(nq).length > JSON.stringify(old).length) found.set(n, nq);
+        }
+        return;
+      } catch (e){
+        if (e?.code === 'cancelled' || job.aborted) return;
+        if (['no_key', 'bad_key', 'bad_model', 'rate_limited', 'offline'].includes(e?.code)) throw e;
+        if (tier === 'default') failed++;
+      }
+    }
+  };
+  let next = 0;
+  const worker = async () => { while (next < chunks.length && !job.aborted){ const i = next++; await run(chunks[i]); done++; onProg(`Extraindo questões: trecho ${done} de ${chunks.length} · ${found.size} questões`, done / chunks.length); } };
+  await Promise.all([worker(), worker()]);
+  if (failed) job.warnings.push(`${failed} trecho(s) não puderam ser lidos; algumas questões podem estar faltando.`);
+  return [...found.values()].sort((a, b) => a.n - b.n);
+}
+
+async function parseGabarito(src, meta, qs, job, fromProva){
+  const nums = qs.map(q => q.n);
+  const ce = qs.filter(q => q.alts.length === 2 && q.alts[0].l === 'C').length > qs.length / 2;
+  const prompt = `Abaixo está ${fromProva ? 'o final de um caderno de prova (que pode conter o gabarito)' : 'o texto de um gabarito de concurso público'}. Prova de interesse: cargo "${meta.cargo || 'não informado'}", banca ${meta.banca || '-'}, ${meta.ano || ''}. Questões a mapear: ${Math.min(...nums)} a ${Math.max(...nums)}.
+Se houver várias tabelas (cargos, tipos ou cores de prova), use a do cargo indicado; se não der para saber, use a primeira e explique em "note". Prefira o gabarito DEFINITIVO ao preliminar.
+${ce ? 'A prova é de itens Certo/Errado: use "C" para certo e "E" para errado.' : 'Use a letra da alternativa correta (A, B, C, D, E).'}
+Questões anuladas vão em "annulled" (lista de números) e não em "answers". Se não houver gabarito no texto, responda {"answers":{},"annulled":[],"note":"gabarito não encontrado"}.
+Responda somente com JSON: {"answers":{"1":"A","2":"C"},"annulled":[7],"note":""}
+
+TEXTO:
+<<<
+${src.slice(0, 40000)}
+>>>`;
+  const ctl = new AbortController(); job.ctls.push(ctl);
+  try {
+    const r = await S.sample.json(prompt, { modelTier: 'default', signal: ctl.signal });
+    const answers = {};
+    for (const [k, v] of Object.entries(r?.answers || {})){ const L = String(v).trim().toUpperCase().slice(0, 1); if (/[A-E]/.test(L)) answers[parseInt(k, 10)] = L; }
+    return { answers, annulled: (r?.annulled || []).map(n => parseInt(n, 10)).filter(Boolean), note: String(r?.note || '').trim() };
+  } catch (e){
+    if (e?.code === 'cancelled') throw e;
+    job.warnings.push('Não foi possível ler o gabarito automaticamente; preencha as respostas abaixo.');
+    return { answers: {}, annulled: [], note: '' };
+  }
+}
+
+A.setAns = d => { const q = S.job?.questions.find(x => x.id === d.id); if (!q) return; const v = d.value; if (v === 'X'){ q.annulled = true; delete q.answer; } else { q.annulled = false; q.answer = v || undefined; } render(); };
+A.rmQ = d => { S.job.questions = S.job.questions.filter(q => q.id !== d.id); render(); };
+A.discardImport = () => { S.job = null; render(); };
+A.saveBank = async () => {
+  const job = S.job; if (!job) return;
+  S.busy = { label: 'Salvando prova…' }; render();
+  try {
+    let provaAsset = null, gabAsset = null;
+    if (S.assets){
+      if (job.provaFile?.type === 'application/pdf' && job.provaFile.size < 20e6) provaAsset = (await S.assets.upload(job.provaFile, { type: 'application/pdf' }).catch(() => null))?.id || null;
+      if (job.gabFile?.type === 'application/pdf' && job.gabFile.size < 20e6) gabAsset = (await S.assets.upload(job.gabFile, { type: 'application/pdf' }).catch(() => null))?.id || null;
+    }
+    const qs = job.questions.map(q => { const o = { ...q }; if (!o.answer) delete o.answer; if (!o.annulled) delete o.annulled; return o; });
+    const parts = []; let cur = [];
+    for (const q of qs){ cur.push(q); if (bytes(JSON.stringify(cur)) > 200000){ cur.pop(); parts.push(cur); cur = [q]; } }
+    if (cur.length) parts.push(cur);
+    const now = Date.now();
+    for (let i = 0; i < parts.length; i++){
+      await planRef().collection('banks').doc().set({ ...job.meta, title: job.meta.title + (parts.length > 1 ? ` (parte ${i + 1})` : ''), source: 'prova', enabled: true, questions: parts[i], provaAsset: i ? null : provaAsset, gabAsset: i ? null : gabAsset, createdAt: now + i });
+    }
+    S.job = null; S.files.prova = []; S.files.gab = []; Object.assign(S.f, { provaText: '', gabText: '', pTitle: '', pOrgao: '', pAno: '' });
+    toast(`${qs.length} questões adicionadas ao banco.`);
+  } catch (e){ toast(dbMsg(e)); }
+  S.busy = null; render();
+};
+A.toggleBank = async d => { const b = S.banks.find(x => x.id === d.id); try { await planRef().collection('banks').doc(d.id).update({ enabled: b.enabled === false }); } catch (e){ toast(dbMsg(e)); } };
+A.delBank = async d => {
+  const b = S.banks.find(x => x.id === d.id); S.confirm = null;
+  try {
+    await planRef().collection('banks').doc(d.id).delete();
+    await planRef().collection('expl').doc(d.id).delete().catch(() => {});
+    for (const a of [b?.provaAsset, b?.gabAsset]) if (a) S.assets?.delete(a).catch(() => {});
+  } catch (e){ toast(dbMsg(e)); }
+};
+
+/* ---------- plano de exemplo ---------- */
+A.demo = async () => {
+  try {
+    const ref = S.db.collection('plans').doc();
+    await ref.set({ nome: 'Exemplo · Direito do Trabalho', cargo: 'Advogado', orgao: 'Demonstração', banca: 'Demonstração', data: '', notas: 'Plano de demonstração com questões não oficiais. Pode excluir quando quiser.', createdAt: Date.now() });
+    await ref.collection('banks').doc('demo').set({ title: 'Questões de demonstração (não oficiais)', banca: 'Demonstração', orgao: '', ano: '', cargo: 'Advogado', source: 'demo', enabled: true, createdAt: Date.now(), questions: DEMO });
+    openPlan(ref.id);
+  } catch (e){ toast(dbMsg(e)); }
+};
+const DEMO = [
+  { id: 'q1', n: 1, subject: 'Direito do Trabalho', text: '', stem: 'De acordo com a Consolidação das Leis do Trabalho, em qualquer trabalho contínuo cuja duração exceda de seis horas, o intervalo para repouso ou alimentação deve ser de', alts: [
+    { l: 'A', t: 'no mínimo quinze minutos, sem limite máximo.' },
+    { l: 'B', t: 'no mínimo uma hora e, salvo acordo escrito ou contrato coletivo em contrário, não poderá exceder de duas horas.' },
+    { l: 'C', t: 'exatamente uma hora, vedada qualquer alteração por negociação coletiva.' },
+    { l: 'D', t: 'no mínimo trinta minutos e no máximo uma hora.' },
+    { l: 'E', t: 'no mínimo duas horas, computadas na duração do trabalho.' } ], answer: 'B',
+    expl: '**Fundamento: art. 71, caput, da CLT.** O intervalo intrajornada para jornadas contínuas acima de 6 horas é de no mínimo 1 hora e, salvo acordo escrito ou contrato coletivo em contrário, de no máximo 2 horas.\n- O intervalo de 15 minutos (alternativa A) vale para jornadas acima de 4 e até 6 horas (art. 71, § 1º).\n- A negociação coletiva pode reduzir o intervalo para até 30 minutos em jornadas superiores a 6 horas (art. 611-A, III), o que afasta a alternativa C.\n- Os intervalos não são computados na duração do trabalho (art. 71, § 2º).' },
+  { id: 'q2', n: 2, subject: 'Direito Constitucional do Trabalho', text: '', stem: 'Nos termos da Constituição Federal, a ação quanto aos créditos resultantes das relações de trabalho tem prazo prescricional de', alts: [
+    { l: 'A', t: 'dois anos para os trabalhadores urbanos e cinco anos para os rurais.' },
+    { l: 'B', t: 'cinco anos, contados da extinção do contrato de trabalho.' },
+    { l: 'C', t: 'cinco anos para os trabalhadores urbanos e rurais, até o limite de dois anos após a extinção do contrato de trabalho.' },
+    { l: 'D', t: 'três anos, contados da lesão, para trabalhadores urbanos e rurais.' },
+    { l: 'E', t: 'dez anos, por se tratar de crédito de natureza alimentar.' } ], answer: 'C',
+    expl: '**Fundamento: art. 7º, XXIX, da CF** (reproduzido no art. 11 da CLT). O prazo é de cinco anos para trabalhadores urbanos e rurais, até o limite de dois anos após a extinção do contrato.\n- Desde a EC 28/2000 não há distinção entre urbanos e rurais, o que afasta a alternativa A.\n- Os cinco anos são contados retroativamente a partir do ajuizamento da ação, e não da extinção do contrato (Súmula 308, I, do TST), o que afasta a alternativa B.' },
+  { id: 'q3', n: 3, subject: 'Direito do Trabalho', text: '', stem: 'Empregado com exatamente cinco anos completos de serviço na mesma empresa é dispensado sem justa causa, com aviso prévio indenizado. Considerando a Lei nº 12.506/2011 e o entendimento do TST, o aviso prévio devido corresponde a', alts: [
+    { l: 'A', t: '30 dias.' }, { l: 'B', t: '33 dias.' }, { l: 'C', t: '45 dias.' }, { l: 'D', t: '48 dias.' }, { l: 'E', t: '90 dias.' } ], answer: 'C',
+    expl: '**Fundamento: art. 1º, parágrafo único, da Lei nº 12.506/2011.** O aviso prévio é de 30 dias para até 1 ano de serviço, acrescido de 3 dias por ano de serviço prestado na mesma empresa, até o máximo de 60 dias de acréscimo (total de 90 dias).\n- Segundo o TST, o acréscimo começa a contar a partir do primeiro ano completo: 5 anos × 3 dias = 15 dias, o que dá 30 + 15 = **45 dias**.\n- A proporcionalidade é um direito do empregado e não se aplica em seu desfavor (Súmula 441 e jurisprudência do TST).' },
+  { id: 'q4', n: 4, subject: 'Direito do Trabalho', text: 'Julgue o item a seguir, relativo à terceirização e à responsabilidade da Administração Pública.', stem: 'Segundo a Súmula nº 331 do TST, os entes da Administração Pública direta e indireta respondem subsidiariamente pelas obrigações trabalhistas da empresa prestadora de serviços contratada de forma automática, em razão do mero inadimplemento dessas obrigações.', alts: [ { l: 'C', t: 'Certo' }, { l: 'E', t: 'Errado' } ], answer: 'E',
+    expl: '**Fundamento: Súmula 331, V, do TST; ADC 16 e Tema 246 do STF.** A responsabilidade subsidiária da Administração Pública não decorre do mero inadimplemento das obrigações trabalhistas pela contratada.\n- Ela depende de conduta culposa da Administração no cumprimento da Lei de Licitações, especialmente na fiscalização do contrato.\n- O art. 71, § 1º, da Lei 8.666/1993 (hoje art. 121 da Lei 14.133/2021) foi declarado constitucional na ADC 16.' }
+];
+
+/* ---------- estudo ---------- */
+function poolFor(mode){
+  const p = plan(), ans = S.progress?.answers || {}, out = [];
+  for (const b of S.banks){
+    if (b.enabled === false) continue;
+    if (b.source === 'ai' && mode !== 'erros') continue;
+    if (mode === 'banca' && norm(b.banca) !== norm(p?.banca)) continue;
+    for (const q of b.questions || []){
+      if (q.annulled || !q.answer) continue;
+      const key = b.id + ':' + q.id, a = ans[key];
+      if (mode === 'erros' && !(a && a.ok === false)) continue;
+      if (mode === 'ineditas' && a) continue;
+      out.push({ ...q, key, bankId: b.id, bankTitle: b.title, banca: b.banca, ano: b.ano, orgao: b.orgao, source: b.source });
+    }
+  }
+  return out;
+}
+A.startStudy = d => {
+  const mode = d.mode, pool = poolFor(mode);
+  if (!pool.length){ toast(mode === 'erros' ? 'Nenhum erro para revisar. Bom sinal.' : 'Não há questões com gabarito neste modo. Importe provas na aba Provas.'); return; }
+  const ans = S.progress?.answers || {};
+  const genQueue = [];
+  for (const b of S.banks.filter(b => b.source === 'ai')) for (const q of b.questions || []) if (!ans[b.id + ':' + q.id]) genQueue.push({ ...q, key: b.id + ':' + q.id, bankId: b.id, source: 'ai', banca: plan()?.banca });
+  S.study = { mode, q: null, chosen: null, answered: false, ok: null, count: 0, correct: 0, seen: new Set(), lastBank: null, since: S.progress?.sinceGen || 0, genQueue: genQueue.slice(0, 4), genBurst: 0, generating: false, genFailAt: -99, ctl: null, expl: '', explState: 'idle' };
+  S.view = 'study'; window.scrollTo(0, 0);
+  nextQuestion();
+};
+function pickFromPool(){
+  const st = S.study, pool = poolFor(st.mode), ans = S.progress?.answers || {};
+  if (!pool.length) return null;
+  let cand = pool.filter(q => !st.seen.has(q.key) && q.key !== st.q?.key);
+  if (!cand.length){ st.seen.clear(); cand = pool.filter(q => q.key !== st.q?.key); if (!cand.length) cand = pool; }
+  if (new Set(cand.map(q => q.bankId)).size > 1) cand = cand.filter(q => q.bankId !== st.lastBank);
+  const w = cand.map(q => { const a = ans[q.key]; return !a ? 3 : a.ok === false ? 4 : 1; });
+  let r = Math.random() * w.reduce((s, x) => s + x, 0);
+  for (let i = 0; i < cand.length; i++){ r -= w[i]; if (r <= 0) return cand[i]; }
+  return cand[cand.length - 1];
+}
+function nextQuestion(){
+  const st = S.study; st.ctl?.abort();
+  if (st.genBurst === 0 && st.since >= 10 && st.genQueue.length && st.mode !== 'erros'){
+    st.genBurst = Math.min(2, st.genQueue.length); st.since = 0; saveProgress({ sinceGen: 0 });
+  }
+  let q = null;
+  if (st.genBurst > 0 && st.genQueue.length){ q = st.genQueue.shift(); st.genBurst--; }
+  else q = pickFromPool();
+  if (!q){ toast('Você revisou todos os erros deste modo.'); S.view = 'plan'; S.study = null; render(); return; }
+  Object.assign(st, { q, chosen: null, answered: false, ok: null, expl: '', explState: 'idle' });
+  st.seen.add(q.key); if (q.source !== 'ai') st.lastBank = q.bankId;
+  maybeGenerate();
+  window.scrollTo(0, 0);
+  render();
+}
+A.pick = d => { const st = S.study; if (!st || st.answered) return; st.chosen = d.l; render(); };
+A.confirm = () => {
+  const st = S.study; if (!st || st.answered || !st.chosen) return;
+  const q = st.q; st.answered = true; st.ok = st.chosen === q.answer; st.count++; if (st.ok) st.correct++;
+  const prev = S.progress?.answers?.[q.key] || { a: 0, c: 0 };
+  const day = today(), pd = S.progress?.days?.[day] || { n: 0, c: 0 };
+  const patch = { answers: { [q.key]: { a: prev.a + 1, c: prev.c + (st.ok ? 1 : 0), l: Date.now(), ok: st.ok, ch: st.chosen } }, days: { [day]: { n: pd.n + 1, c: pd.c + (st.ok ? 1 : 0) } } };
+  if (q.source !== 'ai' && st.mode !== 'erros'){ st.since++; patch.sinceGen = st.since; }
+  saveProgress(patch);
+  if (q.expl){ st.expl = q.expl; st.explState = 'done'; }
+  else if (!st.ok) explain();
+  maybeGenerate();
+  render();
+};
+A.next = () => nextQuestion();
+A.skip = () => nextQuestion();
+A.endStudy = () => { S.study?.ctl?.abort(); S.study = null; S.view = 'plan'; S.tab = 'estudar'; render(); };
+A.explainNow = () => explain();
+A.stopExplain = () => S.study?.ctl?.abort();
+
+function saveProgress(patch){
+  const ref = planRef().collection('progress').doc('main');
+  queueWrite(async () => {
+    const exists = S.progress || (await ref.get()).exists;
+    if (exists) await ref.update({ ...patch, updatedAt: Date.now() });
+    else await ref.set({ answers: {}, days: {}, sinceGen: 0, ...patch, updatedAt: Date.now() });
+  });
+}
+
+async function explain(){
+  const st = S.study, q = st?.q; if (!q) return;
+  st.ctl?.abort();
+  if (q.source !== 'ai' && q.source !== 'demo'){
+    try { const d = await planRef().collection('expl').doc(q.bankId).get(); const t = d.exists ? d.data()?.items?.[q.id] : null; if (t && S.study?.q === q){ st.expl = t; st.explState = 'done'; render(); return; } } catch {}
+  }
+  if (!S.settings.key){ st.explState = 'off'; render(); return; }
+  st.explState = 'loading'; st.expl = ''; render();
+  const alts = q.alts.map(a => `${a.l}) ${a.t}`).join('\n');
+  const excerpts = await findExcerpts(`${q.text}\n${q.stem}\n${q.alts.find(a => a.l === q.answer)?.t || ''}`, 20000);
+  const prompt = `Você é professor(a) de cursinho preparatório para concursos públicos no Brasil. Explique a resolução desta questão para um candidato.
+
+Banca: ${q.banca || '-'} ${q.ano || ''} · ${q.orgao || ''}
+${q.text ? 'Texto de apoio:\n' + q.text + '\n' : ''}Enunciado:
+${q.stem}
+${alts}
+
+Gabarito oficial: ${q.answer}.
+O candidato marcou: ${st.chosen}${st.chosen === q.answer ? ' (acertou)' : ' (errou)'}.
+${excerpts ? '\nTrechos do material de estudo do candidato que podem conter o fundamento:\n<<<' + excerpts + '\n>>>\n' : ''}
+Escreva em português, de forma breve (até 180 palavras):
+- Primeira linha em negrito: "**Fundamento: ...**" com o dispositivo exato (artigo, parágrafo e inciso da lei, súmula, OJ, tese de repercussão geral ou precedente).
+- Por que a alternativa ${q.answer} está correta.
+${st.chosen !== q.answer ? `- Por que a alternativa ${st.chosen} está errada.` : '- Em uma linha, a pegadinha mais comum desta questão.'}
+Dê preferência aos trechos do material quando forem pertinentes. Se o fundamento não estiver nos trechos, use seu conhecimento e termine com "Confira a redação vigente do dispositivo." Se o gabarito parecer desatualizado por mudança legislativa ou jurisprudencial, avise. Use listas com "- " e negrito com **. Sem títulos.`;
+  const ctl = st.ctl = new AbortController();
+  try {
+    const { text } = await S.sample(prompt, { signal: ctl.signal, onText: ({ text }) => { if (S.study?.q !== q) return; st.expl = text; st.explState = 'streaming'; const el = document.getElementById('expl-body'); if (el) el.innerHTML = md(text); else render(); } });
+    if (S.study?.q !== q) return;
+    st.expl = text; st.explState = 'done'; render();
+    if (q.source !== 'ai' && q.source !== 'demo'){
+      const ref = planRef().collection('expl').doc(q.bankId);
+      queueWrite(async () => { const d = await ref.get(); if (d.exists) await ref.update({ items: { [q.id]: text } }); else await ref.set({ items: { [q.id]: text } }); });
+    }
+  } catch (e){
+    if (S.study?.q !== q) return;
+    if (e?.code === 'cancelled'){ st.explState = e.text ? 'done' : 'idle'; st.expl = e.text || ''; }
+    else { st.explState = 'error'; st.explErr = sampleMsg(e); st.expl = e?.text || ''; }
+    render();
+  }
+}
+
+/* ---------- questões originais (2 a cada 10) ---------- */
+function maybeGenerate(){
+  const st = S.study;
+  if (!st || st.generating || !S.settings.key || st.mode === 'erros') return;
+  if (st.genQueue.length >= 2 || st.since < 7) return;
+  if (st.count - st.genFailAt < 10) return;
+  if (!S.materials.some(m => m.textAsset)){ st.genNote = 'Para receber questões originais, adicione legislação ou outros materiais na aba Materiais.'; return; }
+  generate();
+}
+function randomWindow(text, size){
+  if (text.length <= size) return text;
+  let start = Math.floor(Math.random() * (text.length - size));
+  const nl = text.indexOf('\n', start); if (nl > 0 && nl - start < 400) start = nl + 1;
+  return text.slice(start, start + size);
+}
+async function generate(){
+  const st = S.study, p = plan(); st.generating = true; render();
+  try {
+    const study = S.materials.filter(m => m.kind !== 'edital' && m.textAsset);
+    const edital = S.materials.filter(m => m.kind === 'edital' && m.textAsset);
+    let editalEx = '';
+    for (const m of edital.slice(-3)){
+      const t = await getText(m.textAsset), n = norm(t);
+      let i = n.search(/conteudo programatico|conhecimentos especificos|objetos? de avaliacao|programa das provas/);
+      editalEx += `\n[${m.title}]\n` + (i >= 0 ? t.slice(i, i + 5000) : t.slice(0, 2500));
+    }
+    editalEx = editalEx.slice(0, 9000);
+    const picks = [...study].sort(() => Math.random() - 0.5).slice(0, 3);
+    let matEx = '';
+    for (const m of picks) matEx += `\n[${m.title} · ${KINDS[m.kind] || ''}]\n` + randomWindow(await getText(m.textAsset), picks.length === 1 ? 16000 : 8000);
+    const all = S.banks.filter(b => b.source === 'prova');
+    const same = all.filter(b => norm(b.banca) && norm(b.banca) === norm(p.banca));
+    const src = (same.length ? same : all).flatMap(b => (b.questions || []).map(q => ({ ...q, banca: b.banca })));
+    const models = src.sort(() => Math.random() - 0.5).slice(0, 3).map(q => `[${q.banca}] ${q.text ? q.text.slice(0, 600) + '\n' : ''}${q.stem}\n${q.alts.map(a => a.l + ') ' + a.t).join('\n')}`).join('\n\n');
+    const ce = src.length && src.filter(q => q.alts.length === 2).length > src.length / 2;
+    const mk = matEx => `Você é elaborador(a) de questões de concursos públicos no Brasil. Crie 2 questões ORIGINAIS e inéditas para o concurso abaixo.
+
+Concurso: ${p.cargo || '-'} · ${p.orgao || '-'} · banca examinadora: ${p.banca || 'não informada'}.
+${models ? `\nQuestões-modelo (${same.length ? 'da própria banca' : 'de outras bancas'}); imite o padrão: extensão do enunciado, comando ("assinale a correta/incorreta"), número de alternativas, uso de casos concretos e nível de literalidade da lei:\n<<<\n${models}\n>>>\n` : ''}${editalEx ? `\nConteúdo programático do edital (as questões devem caber nele):\n<<<${editalEx}\n>>>\n` : ''}
+Material de estudo (base obrigatória das questões):
+<<<${matEx}
+>>>
+
+Regras:
+- Cada questão deve se apoiar em dispositivo concreto do material (artigo, súmula, tese) e citar esse dispositivo em "basis".
+- Não copie as questões-modelo; crie situações novas. Não use "todas as anteriores" nem "nenhuma das anteriores".
+- ${ce ? 'Formato Certo/Errado: "alts" = [{"l":"C","t":"Certo"},{"l":"E","t":"Errado"}], equilibrando itens certos e errados.' : 'Múltipla escolha com ' + (models ? 'o mesmo número de alternativas das questões-modelo' : '5 alternativas (A a E)') + ', uma única correta e distratores plausíveis.'}
+- "explanation": até 120 palavras, iniciando com "**Fundamento: ...**" e explicando por que a correta é a correta e o erro dos principais distratores.
+
+Responda somente com JSON: {"questions":[{"text":"","stem":"...","alts":[{"l":"A","t":"..."}],"answer":"A","subject":"...","basis":"...","explanation":"..."}]}`;
+    let prompt = mk(matEx);
+    while (bytes(prompt) > 120000 && matEx.length > 2000){ matEx = matEx.slice(0, Math.floor(matEx.length * 0.8)); prompt = mk(matEx); }
+    const ctl = new AbortController();
+    const r = await S.sample.json(prompt, { modelTier: 'default', cache: false, signal: ctl.signal });
+    const qs = (r?.questions || []).map(q => ({
+      id: 'g' + uid(), text: String(q.text || '').trim(), stem: String(q.stem || '').trim(),
+      alts: (q.alts || []).map(a => ({ l: String(a.l || '').toUpperCase().slice(0, 1), t: String(a.t || '').trim() })).filter(a => a.l && a.t),
+      answer: String(q.answer || '').toUpperCase().slice(0, 1), subject: String(q.subject || ''), basis: String(q.basis || ''),
+      expl: String(q.explanation || '').trim(), createdAt: Date.now()
+    })).filter(q => q.stem && q.alts.length >= 2 && q.alts.some(a => a.l === q.answer));
+    if (!qs.length) throw { code: 'invalid_json' };
+    let bank = S.banks.filter(b => b.source === 'ai').find(b => bytes(JSON.stringify(b.questions || [])) < 180000);
+    const col = planRef().collection('banks');
+    const id = bank ? bank.id : 'ai-' + uid();
+    const all2 = [...(bank?.questions || []), ...qs];
+    await (bank ? col.doc(id).update({ questions: all2 }) : col.doc(id).set({ title: 'Questões originais (IA)', banca: p.banca, source: 'ai', enabled: true, createdAt: Date.now(), questions: all2 }));
+    if (S.study === st) for (const q of qs) st.genQueue.push({ ...q, key: id + ':' + q.id, bankId: id, source: 'ai', banca: p.banca });
+    st.genNote = '';
+  } catch (e){
+    st.genFailAt = st.count; st.genNote = (e?.code === 'rate_limited' ? 'Limite do Gemini atingido; ' : 'Não foi possível criar as questões originais agora; ') + 'nova tentativa após mais 10 questões.';
+  }
+  st.generating = false; render();
+}
+
+/* ---------- visualização ---------- */
+function view(){
+  const top = `<header class="top"><div class="wrap">
+    <button class="brand" data-a="home" aria-label="Início"><span class="mark">A✓</span>Gabarito</button>
+    <span class="crumb">${S.planId && plan() ? '/ ' + esc(plan().nome) : ''}</span>
+    ${S.view === 'study' && S.study ? `<span class="chip accent num">${S.study.correct}/${S.study.count} acertos</span>` : S.view !== 'settings' && S.ready && S.db ? `<button class="btn ghost" data-a="openSettings">Configurações</button>` : ''}
+  </div></header>`;
+  let body = '';
+  if (!S.ready) body = `<p class="muted" style="padding-top:24px">Carregando…</p>`;
+  else if (!S.db) body = noRuntime();
+  else if (S.view === 'settings') body = settingsView();
+  else if (S.view === 'planForm') body = planForm();
+  else if (S.view === 'study' && S.study) body = studyView();
+  else if (S.view === 'plan' && plan()) body = planView();
+  else body = homeView();
+  const busy = S.busy ? `<div class="toast" role="status">${esc(S.busy.label || 'Processando…')}${S.busy.p != null ? ' · ' + Math.round(S.busy.p * 100) + '%' : ''} ${S.busy.label?.startsWith('Transcrevendo') ? '<button class="btn ghost" data-a="stopBusy" style="color:inherit;padding:4px 8px">Parar</button>' : ''}</div>` : S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '';
+  return top + `<main class="wrap"><div class="stack-lg" style="padding-top:22px">${body}</div></main>` + busy;
+}
+
+function noRuntime(){
+  return `<div class="card stack"><h2>Armazenamento indisponível</h2><p class="muted">Este navegador bloqueou o armazenamento local, e o Gabarito precisa dele para guardar seus planos. Saia da navegação privada ou abra o app pelo Safari ou Chrome comum.</p></div>`;
+}
+
+function homeView(){
+  if (!S.plansLoaded) return `<p class="muted">Carregando planos…</p>`;
+  const cards = S.plans.map(p => {
+    let dias = '';
+    if (p.data){ const d = Math.ceil((new Date(p.data + 'T12:00') - new Date()) / 864e5); dias = d > 0 ? `<span class="chip warn num">faltam ${d} dias</span>` : d === 0 ? '<span class="chip warn">prova hoje</span>' : ''; }
+    return `<button class="card plan-card" data-a="openPlan" data-id="${esc(p.id)}">
+      <span class="label">${esc(p.banca || 'Banca não definida')}</span>
+      <h3 style="font-size:16px">${esc(p.nome)}</h3>
+      <span class="muted small">${esc([p.cargo, p.orgao].filter(Boolean).join(' · ') || '—')}</span>
+      ${dias ? `<span class="row" style="margin-top:4px">${dias}</span>` : ''}
+    </button>`;
+  }).join('');
+  const intro = `<div class="card stack">
+      <h2>Estudo ativo por questões</h2>
+      <p class="muted" style="max-width:62ch">Monte um plano por concurso, reúna edital, legislação e provas anteriores, e resolva questões sorteadas das provas que você escolheu. Errou? A IA (Gemini) explica a alternativa certa e aponta o fundamento legal. A cada 10 questões, ela cria 2 questões inéditas no estilo da banca do seu concurso.</p>
+      <ol class="steps small">
+        <li>Crie o plano e informe a banca examinadora.</li>
+        <li>Em <b>Materiais</b>, anexe o edital com suas retificações, a legislação seca, as súmulas e a jurisprudência.</li>
+        <li>Em <b>Provas</b>, anexe as provas anteriores e seus gabaritos.</li>
+        <li>Em <b>Estudar</b>, comece a resolver.</li>
+      </ol>
+      <div class="row"><button class="btn primary" data-a="newPlan">Criar plano de estudo</button>${S.plans.length ? '' : '<button class="btn" data-a="demo">Testar com um exemplo</button>'}</div>
+    </div>`;
+  const keyNote = !S.settings.key ? `<div class="note info spread"><span>Para ler provas e gerar explicações, configure sua chave gratuita do Gemini.</span><button class="btn" data-a="openSettings">Configurar</button></div>` : '';
+  return keyNote + (S.plans.length ? `<div class="spread"><h1>Seus planos</h1><button class="btn primary" data-a="newPlan">Novo plano</button></div><div class="plan-grid">${cards}</div>` : intro);
+}
+
+function fld(name, label, ph = '', type = 'text'){
+  return `<label class="field"><span>${label}</span><input type="${type}" id="f-${name}" data-f="${name}" value="${esc(S.f[name] || '')}" placeholder="${esc(ph)}"></label>`;
+}
+function planForm(){
+  return `<div class="stack"><h1>${S.editing ? 'Editar plano' : 'Novo plano de estudo'}</h1>
+    <div class="card stack">
+      ${fld('nome', 'Nome do plano', 'Ex.: Procurador Municipal · RS')}
+      <div class="grid2">${fld('cargo', 'Cargo', 'Procurador do Município')}${fld('orgao', 'Órgão', 'Prefeitura de Canoas/RS')}</div>
+      <div class="grid2">${fld('banca', 'Banca examinadora', 'FUNDATEC, Cebraspe, FGV…')}${fld('data', 'Data da prova (opcional)', '', 'date')}</div>
+      <label class="field"><span>Anotações</span><textarea id="f-notas" data-f="notas" style="font-family:var(--sans);font-size:14px" placeholder="Provas que pretende usar, disciplinas prioritárias…">${esc(S.f.notas || '')}</textarea></label>
+      <p class="small muted">A banca examinadora define o estilo das questões originais e o modo de estudo “Só da banca-alvo”.</p>
+      <div class="row"><button class="btn primary" data-a="savePlan">${S.editing ? 'Salvar' : 'Criar plano'}</button><button class="btn ghost" data-a="cancelForm">Cancelar</button></div>
+    </div></div>`;
+}
+
+function stats(){
+  const ans = S.progress?.answers || {};
+  const keys = Object.keys(ans);
+  let att = 0, cor = 0, lastOk = 0, wrongNow = 0;
+  for (const k of keys){ att += ans[k].a; cor += ans[k].c; if (ans[k].ok) lastOk++; else wrongNow++; }
+  const total = S.banks.filter(b => b.source !== 'ai').reduce((s, b) => s + (b.questions || []).filter(q => q.answer && !q.annulled).length, 0);
+  return { answered: keys.length, att, cor, wrongNow, total };
+}
+
+function planView(){
+  const p = plan();
+  const tabs = [['estudar', 'Estudar'], ['materiais', 'Materiais'], ['provas', 'Provas'], ['desempenho', 'Desempenho']];
+  const head = `<div class="stack" style="gap:6px">
+    <div class="spread"><h1>${esc(p.nome)}</h1><button class="btn ghost" data-a="editPlan">Editar</button></div>
+    <div class="row">${p.banca ? `<span class="chip accent">Banca: ${esc(p.banca)}</span>` : '<span class="chip warn">Banca não definida</span>'}${p.cargo ? `<span class="chip">${esc(p.cargo)}</span>` : ''}${p.orgao ? `<span class="chip">${esc(p.orgao)}</span>` : ''}</div>
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${S.tab === k}" data-a="tab" data-t="${k}">${l}</button>`).join('')}</div>
+  </div>`;
+  const body = { estudar: tabEstudar, materiais: tabMateriais, provas: tabProvas, desempenho: tabDesempenho }[S.tab]();
+  return head + body;
+}
+
+function tabEstudar(){
+  const s = stats(), p = plan();
+  const nb = S.banks.filter(b => b.source === 'prova' || b.source === 'demo').length;
+  const since = S.progress?.sinceGen || 0;
+  const counts = Object.fromEntries(Object.keys(MODES).map(m => [m, poolFor(m).length]));
+  return `<div class="stats">
+      <div class="stat"><b>${s.total}</b><span>questões com gabarito</span></div>
+      <div class="stat"><b>${s.answered}</b><span>já respondidas</span></div>
+      <div class="stat"><b>${s.att ? pct(s.cor, s.att) + '%' : '—'}</b><span>de acerto</span></div>
+    </div>
+    ${!nb ? `<div class="note info">Nenhuma prova importada ainda. Comece pela aba <b>Provas</b>.</div>` : ''}
+    <div class="stack"><h2>Como quer estudar agora?</h2>
+    <div class="modes">${Object.entries(MODES).map(([k, [t, d]]) => `<button class="card mode" data-a="startStudy" data-mode="${k}" ${counts[k] ? '' : 'disabled style="opacity:.5;cursor:not-allowed"'}><b>${t}</b><small>${k === 'banca' ? esc(p.banca ? 'Apenas provas da ' + p.banca : 'Defina a banca no plano') : d}</small><span class="chip num" style="align-self:flex-start;margin-top:4px">${counts[k]} questões</span></button>`).join('')}</div></div>
+    <p class="small muted">A cada 10 questões respondidas, entram 2 questões originais criadas pela IA a partir dos seus materiais, no padrão da banca ${esc(p.banca || 'examinadora')}. Faltam ${Math.max(0, 10 - since)} para as próximas.</p>`;
+}
+
+function fileBox(key, accept, multiple){
+  const fs = S.files[key] || [];
+  return `<div class="filebox"><input type="file" id="file-${key}" data-file="${key}" accept="${accept}" ${multiple ? 'multiple' : ''}>${fs.length ? `<span class="small">${fs.map(f => esc(f.name)).join(', ')}</span>` : ''}</div>`;
+}
+function ocrCheck(){
+  if (!S.imgOK) return '';
+  return `<label class="check"><input type="checkbox" id="f-ocr" data-f="ocr" ${S.f.ocr !== false ? 'checked' : ''}> Se o PDF for escaneado, transcrever as páginas com o Gemini (até 80 páginas; pode demorar por causa do limite gratuito)</label>`;
+}
+
+function tabMateriais(){
+  const groups = Object.entries(KINDS).map(([k, label]) => {
+    const ms = S.materials.filter(m => m.kind === k);
+    return `<div class="stack" style="gap:8px"><span class="label">${label}</span>${ms.length ? `<div class="list">${ms.map(m => `<div class="item"><div class="grow"><div class="t">${esc(m.title)}</div><div class="small muted num">${(m.chars || 0).toLocaleString('pt-BR')} caracteres${m.fileName ? ' · ' + esc(m.fileName) : ''}</div></div>
+      ${m.fileAsset ? `<button class="btn ghost" data-a="openFile" data-id="${esc(m.fileAsset)}">Abrir</button>` : ''}
+      ${S.confirm === 'm' + m.id ? `<button class="btn danger armed" data-a="delMaterial" data-id="${esc(m.id)}">Excluir</button>` : `<button class="btn ghost danger" data-a="arm" data-k="m${esc(m.id)}" aria-label="Excluir">Excluir</button>`}</div>`).join('')}</div>` : `<div class="empty list">Nada aqui ainda.</div>`}</div>`;
+  }).join('');
+  return `<div class="card stack">
+      <h2>Adicionar material</h2>
+      <div class="grid2">
+        <label class="field"><span>Tipo</span><select id="f-matKind" data-f="matKind">${Object.entries(KINDS).map(([k, l]) => `<option value="${k}" ${(S.f.matKind || 'legislacao') === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        ${fld('matTitle', 'Título (opcional)', 'Ex.: CLT atualizada · Súmulas do TST')}
+      </div>
+      <label class="field"><span>Arquivos (PDF, TXT, MD ou HTML)</span>${fileBox('mat', '.pdf,.txt,.md,.html,.htm', true)}</label>
+      <details><summary class="small">Ou cole o texto</summary><textarea id="f-matText" data-f="matText" style="margin-top:8px" placeholder="Cole aqui a lei, a súmula, o informativo…">${esc(S.f.matText || '')}</textarea></details>
+      ${ocrCheck()}
+      <div class="row"><button class="btn primary" data-a="addMaterial" ${S.busy ? 'disabled' : ''}>Adicionar</button><span class="small muted">Dica: para legislação, use a versão compilada do Planalto (salve a página como PDF ou HTML).</span></div>
+    </div>
+    ${groups}`;
+}
+
+function tabProvas(){
+  const j = S.job;
+  let importer;
+  if (j && j.stage !== 'revisar' && j.stage !== 'erro'){
+    importer = `<div class="card job"><h2>Importando “${esc(j.meta.title)}”</h2><div class="progress"><i style="width:${Math.round((j.p || 0) * 100)}%"></i></div><p class="small muted num">${esc(j.label)}</p><div><button class="btn" data-a="stopBusy">Cancelar</button></div></div>`;
+  } else if (j && j.stage === 'erro'){
+    importer = `<div class="card stack"><h2>Não foi possível importar</h2><p class="note">${esc(j.error)}</p><div class="row"><button class="btn primary" data-a="startImport">Tentar de novo</button><button class="btn ghost" data-a="discardImport">Descartar</button></div></div>`;
+  } else if (j && j.stage === 'revisar'){
+    const miss = j.questions.filter(q => !q.answer && !q.annulled).length;
+    importer = `<div class="card stack"><div class="spread"><h2>Revise antes de salvar</h2><span class="chip accent num">${j.questions.length} questões</span></div>
+      ${j.warnings.map(w => `<p class="note">${esc(w)}</p>`).join('')}
+      ${miss ? `<p class="note">${miss} questão(ões) sem gabarito. Elas ficam fora do sorteio até você indicar a resposta.</p>` : ''}
+      <div class="list qprev" style="max-height:420px;overflow:auto">${j.questions.map(q => `<div class="item"><span class="chip num">${q.n}</span><div class="grow">${esc(q.stem.slice(0, 160))}${q.stem.length > 160 ? '…' : ''}<div class="small muted">${q.alts.length} alternativas${q.subject ? ' · ' + esc(q.subject) : ''}</div></div>
+        <select data-a2="setAns" data-id="${q.id}" aria-label="Gabarito da questão ${q.n}"><option value="">—</option>${q.alts.map(a => `<option ${q.answer === a.l ? 'selected' : ''}>${a.l}</option>`).join('')}<option value="X" ${q.annulled ? 'selected' : ''}>Anulada</option></select>
+        <button class="btn ghost" data-a="rmQ" data-id="${q.id}" aria-label="Remover">✕</button></div>`).join('')}</div>
+      <div class="row"><button class="btn primary" data-a="saveBank" ${S.busy ? 'disabled' : ''}>Salvar no banco de questões</button><button class="btn ghost" data-a="discardImport">Descartar</button></div></div>`;
+  } else {
+    importer = `<div class="card stack">
+      <h2>Importar prova</h2>
+      <p class="small muted">Você escolhe as provas. Uma boa fonte é o <a href="https://www.pciconcursos.com.br/provas/advogado/7" target="_blank" rel="noopener">acervo de provas do PCI Concursos</a>: baixe o caderno e o gabarito e anexe abaixo. Prefira provas da mesma banca e de cargos equivalentes.</p>
+      ${fld('pTitle', 'Identificação da prova', 'Ex.: Procurador · Pref. de Novo Hamburgo/RS · 2023')}
+      <div class="grid2">${fld('pBanca', 'Banca', plan().banca || 'FUNDATEC')}${fld('pOrgao', 'Órgão', 'Prefeitura de …')}</div>
+      <div class="grid2">${fld('pCargo', 'Cargo', plan().cargo || 'Procurador')}${fld('pAno', 'Ano', '2023')}</div>
+      <label class="field"><span>Caderno de prova (PDF ou TXT)</span>${fileBox('prova', '.pdf,.txt,.md', false)}</label>
+      <label class="field"><span>Gabarito (PDF ou TXT). Se estiver no mesmo arquivo da prova, deixe em branco.</span>${fileBox('gab', '.pdf,.txt,.md', false)}</label>
+      <details><summary class="small">Ou cole os textos</summary><div class="stack" style="margin-top:8px"><textarea id="f-provaText" data-f="provaText" placeholder="Texto da prova">${esc(S.f.provaText || '')}</textarea><textarea id="f-gabText" data-f="gabText" placeholder="Gabarito. Ex.: 1-A 2-C 3-B 4-anulada …">${esc(S.f.gabText || '')}</textarea></div></details>
+      ${ocrCheck()}
+      <div class="row"><button class="btn primary" data-a="startImport">Extrair questões</button><span class="small muted">O Gemini separa cada questão em inteiro teor e cruza com o gabarito. Você revisa antes de salvar.</span></div>
+    </div>`;
+  }
+  const ans = S.progress?.answers || {};
+  const banks = S.banks.length ? `<div class="list">${S.banks.map(b => {
+    const qs = b.questions || [], ok = qs.filter(q => q.answer && !q.annulled).length;
+    const done = qs.filter(q => ans[b.id + ':' + q.id]).length;
+    return `<div class="item"><div class="grow"><div class="t">${esc(b.title)}</div><div class="small muted num">${esc([b.banca, b.orgao, b.ano].filter(Boolean).join(' · '))}${b.banca ? ' · ' : ''}${ok} com gabarito · ${done} respondidas</div></div>
+      ${b.source === 'ai' ? '<span class="chip accent">Originais</span>' : `<button class="btn ghost small" data-a="toggleBank" data-id="${esc(b.id)}" title="Incluir ou excluir do sorteio">${b.enabled === false ? '<span class="chip">pausada</span>' : '<span class="chip ok">ativa</span>'}</button>`}
+      ${b.provaAsset ? `<button class="btn ghost" data-a="openFile" data-id="${esc(b.provaAsset)}">PDF</button>` : ''}
+      ${S.confirm === 'b' + b.id ? `<button class="btn danger armed" data-a="delBank" data-id="${esc(b.id)}">Excluir</button>` : `<button class="btn ghost danger" data-a="arm" data-k="b${esc(b.id)}">Excluir</button>`}</div>`;
+  }).join('')}</div>` : `<div class="list empty">Nenhuma prova no banco ainda.</div>`;
+  return importer + `<div class="stack" style="gap:8px"><span class="label">Banco de questões</span>${banks}</div>`;
+}
+
+function tabDesempenho(){
+  const s = stats(), days = S.progress?.days || {};
+  const list = [];
+  for (let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); list.push({ k, d: d.getDate(), ...(days[k] || { n: 0, c: 0 }) }); }
+  const max = Math.max(10, ...list.map(x => x.n));
+  const ans = S.progress?.answers || {};
+  const rows = S.banks.map(b => { let n = 0, a = 0, c = 0; for (const q of b.questions || []){ const x = ans[b.id + ':' + q.id]; if (x){ n++; a += x.a; c += x.c; } } return { t: b.title, total: (b.questions || []).length, n, a, c }; }).filter(r => r.n);
+  const subj = {}; for (const b of S.banks) for (const q of b.questions || []){ const x = ans[b.id + ':' + q.id]; if (!x) continue; const k = q.subject || 'Sem disciplina'; subj[k] = subj[k] || { a: 0, c: 0 }; subj[k].a += x.a; subj[k].c += x.c; }
+  const subjRows = Object.entries(subj).sort((a, b) => b[1].a - a[1].a);
+  return `<div class="stats">
+      <div class="stat"><b>${s.att}</b><span>respostas dadas</span></div>
+      <div class="stat"><b>${s.att ? pct(s.cor, s.att) + '%' : '—'}</b><span>de acerto geral</span></div>
+      <div class="stat"><b>${s.wrongNow}</b><span>erros a revisar</span></div>
+    </div>
+    <div class="card stack"><div class="spread"><h3>Últimos 14 dias</h3><span class="small muted">barra cheia = respondidas · escura = acertos</span></div>
+      <div class="days">${list.map(x => `<div title="${x.k}: ${x.c}/${x.n}"><i style="height:${Math.max(2, 70 * x.n / max)}px"><s style="height:${x.n ? 100 * x.c / x.n : 0}%"></s></i><span>${x.d}</span></div>`).join('')}</div></div>
+    ${subjRows.length ? `<div class="card scroll-x"><table class="tbl"><thead><tr><th>Disciplina</th><th class="n">Respostas</th><th class="n">Acerto</th></tr></thead><tbody>${subjRows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${v.a}</td><td class="n">${pct(v.c, v.a)}%</td></tr>`).join('')}</tbody></table></div>` : ''}
+    ${rows.length ? `<div class="card scroll-x"><table class="tbl"><thead><tr><th>Prova</th><th class="n">Vistas</th><th class="n">Acerto</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.t)}</td><td class="n">${r.n}/${r.total}</td><td class="n">${pct(r.c, r.a)}%</td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">Responda algumas questões para ver seu desempenho.</p>`}
+    ${s.wrongNow ? `<div><button class="btn primary" data-a="startStudy" data-mode="erros">Revisar ${s.wrongNow} erro(s)</button></div>` : ''}
+    <div class="stack" style="gap:8px;margin-top:12px"><span class="label">Plano</span><div class="row">${S.confirm === 'plan' ? `<button class="btn danger armed" data-a="deletePlan">Confirmar exclusão do plano e de todos os arquivos</button><button class="btn ghost" data-a="arm" data-k="">Cancelar</button>` : `<button class="btn danger" data-a="arm" data-k="plan">Excluir plano</button>`}</div></div>`;
+}
+
+function studyView(){
+  const st = S.study, q = st.q;
+  const isAI = q.source === 'ai';
+  const head = isAI
+    ? `<span class="chip accent">Questão original · estilo ${esc(q.banca || 'banca')}</span>${q.basis ? `<span class="chip">${esc(q.basis)}</span>` : ''}`
+    : `<span class="chip">${esc(q.bankTitle || '')}</span><span class="chip num">Questão ${q.n}</span>${q.subject ? `<span class="chip">${esc(q.subject)}</span>` : ''}`;
+  const alts = q.alts.map(a => {
+    let cls = 'alt';
+    if (st.answered){ if (a.l === q.answer) cls += ' right'; else if (a.l === st.chosen) cls += ' wrong'; }
+    else if (a.l === st.chosen) cls += ' sel';
+    return `<button class="${cls}" data-a="pick" data-l="${a.l}" ${st.answered ? 'disabled' : ''}><span class="l">${a.l}</span><span class="tx">${esc(a.t)}</span></button>`;
+  }).join('');
+  let verdict = '';
+  if (st.answered){
+    const ce = q.alts.length === 2 && q.alts[0].l === 'C';
+    const ansLabel = ce ? (q.answer === 'C' ? 'Certo' : 'Errado') : 'alternativa ' + q.answer;
+    let ex = '';
+    if (st.explState === 'loading') ex = `<div class="thinking"><span class="dot"></span>Buscando o fundamento nos seus materiais… <button class="btn ghost small" data-a="stopExplain">Parar</button></div>`;
+    else if (st.explState === 'streaming' || st.explState === 'done') ex = `<div class="expl" id="expl-body">${md(st.expl)}</div>`;
+    else if (st.explState === 'error') ex = `${st.expl ? `<div class="expl" id="expl-body">${md(st.expl)}</div>` : ''}<p class="small">${esc(st.explErr)}</p><div><button class="btn" data-a="explainNow">Tentar de novo</button></div>`;
+    else if (st.explState === 'off') ex = `<p class="small">Configure a chave do Gemini para ver a fundamentação. <button class="btn" data-a="openSettings">Configurar</button></p>`;
+    else ex = `<div><button class="btn" data-a="explainNow">Ver fundamentação</button></div>`;
+    verdict = `<div class="verdict ${st.ok ? 'ok' : 'bad'}" aria-live="polite"><h3>${st.ok ? 'Correto.' : `Incorreto. Gabarito: ${ansLabel}.`}</h3>${ex}</div>`;
+  }
+  const toNext = Math.max(0, 10 - st.since);
+  const genInfo = st.mode === 'erros' ? '' : st.generating ? 'Criando questões originais…' : st.genNote ? st.genNote : st.genBurst > 0 || isAI ? 'Rodada de questões originais' : `Questões originais em ${toNext}`;
+  return `<div class="stack">
+      <div class="progress" aria-hidden="true"><i style="width:${st.mode === 'erros' ? 0 : (10 - toNext) * 10}%"></i></div>
+      <div class="spread"><span class="small muted">${esc(MODES[st.mode][0])} · ${esc(genInfo)}</span><button class="btn ghost" data-a="endStudy">Encerrar</button></div>
+      <div class="qhead">${head}</div>
+      ${q.text ? `<div class="support">${esc(q.text)}</div>` : ''}
+      <div class="stem">${esc(q.stem)}</div>
+      <div class="alts">${alts}</div>
+      ${verdict}
+    </div>
+    <div class="bar">
+      <span class="small muted hide-sm">Atalhos: <span class="kbd">A</span>–<span class="kbd">E</span> escolher · <span class="kbd">Enter</span> ${st.answered ? 'próxima' : 'responder'}</span>
+      <div class="row" style="margin-left:auto">${st.answered ? `<button class="btn primary lg" data-a="next">Próxima questão</button>` : `<button class="btn ghost" data-a="skip">Pular</button><button class="btn primary lg" data-a="confirm" ${st.chosen ? '' : 'disabled'}>Responder</button>`}</div>
+    </div>`;
+}
+
+/* ---------- render e eventos ---------- */
+const app = document.getElementById('app');
+function render(){
+  const a = document.activeElement, id = a && a.id;
+  let sel = null; try { if (id && typeof a.selectionStart === 'number') sel = [a.selectionStart, a.selectionEnd]; } catch {}
+  const y = window.scrollY;
+  app.innerHTML = view();
+  if (id){ const n = document.getElementById(id); if (n){ n.focus({ preventScroll: true }); try { if (sel) n.setSelectionRange(sel[0], sel[1]); } catch {} } }
+  window.scrollTo(0, y);
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  const fn = A[el.dataset.a]; if (!fn) return;
+  e.preventDefault();
+  if (!['arm', 'delMaterial', 'delBank', 'deletePlan', 'importBackup'].includes(el.dataset.a)) S.confirm = null;
+  fn({ ...el.dataset });
+});
+document.addEventListener('input', e => {
+  const el = e.target; if (!el.dataset.f) return;
+  S.f[el.dataset.f] = el.type === 'checkbox' ? el.checked : el.value;
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.file){ S.files[el.dataset.file] = [...el.files]; render(); }
+  else if (el.dataset.a2 === 'setAns') A.setAns({ id: el.dataset.id, value: el.value });
+  else if (el.dataset.a2 === 'setModel'){ saveSettings({ [el.dataset.k]: el.value }); render(); }
+  else if (el.dataset.f){ S.f[el.dataset.f] = el.type === 'checkbox' ? el.checked : el.value; }
+});
+document.addEventListener('keydown', e => {
+  if (S.view !== 'study' || !S.study) return;
+  if (/^(input|textarea|select|button|a)$/i.test(e.target.tagName) && e.key === 'Enter' && e.target !== document.body) return;
+  if (/input|textarea|select/i.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  const st = S.study, k = e.key.toUpperCase();
+  if (!st.answered && st.q.alts.some(a => a.l === k)){ e.preventDefault(); A.pick({ l: k }); }
+  else if (e.key === 'Enter'){ e.preventDefault(); st.answered ? A.next() : A.confirm(); }
+});
+
+/* ---------- inicialização ---------- */
+(async function boot(){
+  S.settings = loadSettings();
+  try { S.models = JSON.parse(localStorage.getItem('gabarito.models')) || []; } catch { S.models = []; }
+  render();
+  try { await LocalDB.open(); } catch { S.ready = true; render(); return; }
+  Object.assign(S, { db: LocalDB, assets: LocalAssets, sample: makeSample(), imgOK: true, ready: true });
+  try { navigator.storage?.persist?.(); } catch {}
+  S.db.collection('plans').onSnapshot(snap => {
+    S.plans = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    S.plansLoaded = true;
+    if (S.planId && !plan()) goHome();
+    render();
+  });
+  render();
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+
+/* ---------- tela de configurações ---------- */
+async function refreshStorageInfo(){
+  try {
+    const e = await navigator.storage.estimate(), p = await navigator.storage.persisted?.();
+    S.storageInfo = `Em uso: ${(e.usage / 1048576).toFixed(1)} MB` + (e.quota ? ` de ${Math.round(e.quota / 1048576).toLocaleString('pt-BR')} MB disponíveis` : '') + (p ? ' · armazenamento protegido' : '');
+  } catch { S.storageInfo = ''; }
+  render();
+}
+A.openSettings = () => { if (S.view !== 'settings') S.prevView = S.view; S.view = 'settings'; S.f.key = S.settings.key || ''; S.keyStatus = null; refreshStorageInfo(); window.scrollTo(0, 0); render(); };
+A.closeSettings = () => {
+  let v = S.prevView || 'home';
+  if (v === 'study' && !S.study) v = 'plan';
+  if (v === 'plan' && !plan()) v = 'home';
+  if (v === 'planForm') v = S.planId ? 'plan' : 'home';
+  S.view = v; render();
+};
+A.saveKey = async () => {
+  const key = (S.f.key || '').trim();
+  if (!key){ saveSettings({ key: '' }); S.keyStatus = { ok: false, msg: 'Chave removida' }; render(); return; }
+  S.keyStatus = { ok: true, msg: 'Testando…' }; render();
+  try {
+    const models = await listModels(key);
+    if (!models.length) throw { code: 'upstream_error' };
+    S.models = models; try { localStorage.setItem('gabarito.models', JSON.stringify(models)); } catch {}
+    const d = pickDefaults(models);
+    saveSettings({ key, main: models.includes(S.settings.main) ? S.settings.main : d.main, quick: models.includes(S.settings.quick) ? S.settings.quick : d.quick });
+    S.keyStatus = { ok: true, msg: 'Chave válida' };
+  } catch (e){
+    S.keyStatus = { ok: false, msg: e.code === 'bad_key' ? 'Chave recusada pelo Google' : e.code === 'offline' ? 'Sem internet' : 'Não foi possível testar agora' };
+  }
+  render();
+};
+A.openFile = d => {
+  const w = window.open('', '_blank');
+  LocalAssets.get(d.id).then(rec => {
+    if (!rec?.buf){ w?.close(); toast('O PDF original não está neste aparelho (backups sem PDFs não o incluem).'); return; }
+    const url = URL.createObjectURL(new Blob([rec.buf], { type: rec.type || 'application/pdf' }));
+    if (w) w.location.href = url; else location.href = url;
+  }).catch(() => { w?.close(); toast('Não foi possível abrir o arquivo.'); });
+};
+A.exportBackup = async () => {
+  S.busy = { label: 'Gerando backup…' }; render();
+  try {
+    const docs = (await LocalDB.dump('docs')).map(([path, v]) => ({ path, data: v.data }));
+    const blobs = [];
+    for (const [id, rec] of await LocalDB.dump('blobs')){
+      if (rec.text != null) blobs.push({ id, type: rec.type, text: rec.text });
+      else if (S.f.bkPdf && rec.buf) blobs.push({ id, type: rec.type, b64: await b64(new Blob([rec.buf])) });
+    }
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ app: 'gabarito', v: 1, exportedAt: new Date().toISOString(), docs, blobs })], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = `gabarito-backup-${today()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    S.busy = null; toast('Backup gerado. Guarde o arquivo no iCloud Drive para abrir no outro aparelho.');
+  } catch { S.busy = null; toast('Não foi possível gerar o backup.'); }
+};
+A.importBackup = async () => {
+  const f = S.files.backup?.[0]; if (!f) return;
+  S.confirm = null; S.busy = { label: 'Restaurando backup…' }; render();
+  try {
+    const j = JSON.parse(await f.text());
+    if (j.app !== 'gabarito' || !Array.isArray(j.docs)) throw new Error('formato');
+    await LocalDB.req('docs', 'readwrite', s => s.clear());
+    await LocalDB.req('blobs', 'readwrite', s => s.clear());
+    for (const d of j.docs) await LocalDB.req('docs', 'readwrite', s => s.put({ parent: parentOf(d.path), data: d.data }, d.path));
+    for (const b of j.blobs || []){
+      const rec = b.text != null ? { type: b.type || 'text/plain', text: b.text } : { type: b.type, buf: Uint8Array.from(atob(b.b64), c => c.charCodeAt(0)).buffer };
+      await LocalDB.req('blobs', 'readwrite', s => s.put(rec, b.id));
+    }
+    location.reload();
+  } catch { S.busy = null; toast('Este arquivo não é um backup válido do Gabarito.'); }
+};
+function settingsView(){
+  const st = S.settings, models = S.models || [];
+  const opt = sel => models.map(m => `<option value="${esc(m)}" ${m === sel ? 'selected' : ''}>${esc(m)}</option>`).join('');
+  return `<div class="spread"><h1>Configurações</h1><button class="btn ghost" data-a="closeSettings">Voltar</button></div>
+  <div class="card stack"><h2>Chave do Gemini</h2>
+    <ol class="steps small">
+      <li>Acesse <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e entre com sua conta Google.</li>
+      <li>Toque em <b>Create API key</b> (Criar chave de API) e copie o código gerado.</li>
+      <li>Cole abaixo e toque em <b>Salvar e testar</b>. Faça isso uma vez em cada aparelho.</li>
+    </ol>
+    <label class="field"><span>Chave da API</span><input type="password" id="f-key" data-f="key" value="${esc(S.f.key ?? st.key ?? '')}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…"></label>
+    <div class="row"><button class="btn primary" data-a="saveKey">Salvar e testar</button>${S.keyStatus ? `<span class="chip ${S.keyStatus.ok ? 'ok' : 'bad'}">${esc(S.keyStatus.msg)}</span>` : st.key ? '<span class="chip ok">Chave configurada</span>' : ''}</div>
+    <p class="small muted">A chave fica guardada só neste aparelho e é enviada apenas ao Google. Na camada gratuita, o Google pode usar o conteúdo enviado para melhorar os produtos dele.</p>
+    ${models.length ? `<div class="grid2">
+      <label class="field"><span>Modelo principal (explicações e questões originais)</span><select id="f-main" data-a2="setModel" data-k="main">${opt(st.main)}</select></label>
+      <label class="field"><span>Modelo rápido (leitura das provas)</span><select id="f-quick" data-a2="setModel" data-k="quick">${opt(st.quick)}</select></label>
+    </div><p class="small muted">Os modelos “flash” têm a cota gratuita mais generosa. Os “pro” são mais fortes, mas a cota gratuita é bem menor.</p>` : ''}
+  </div>
+  <div class="card stack"><h2>Backup e outros aparelhos</h2>
+    <p class="small muted">Seus planos ficam salvos neste aparelho. Para passar tudo do Mac para o iPhone, ou guardar uma cópia, exporte aqui e restaure no outro aparelho. Salvar o arquivo no iCloud Drive facilita.</p>
+    <label class="check"><input type="checkbox" id="f-bkPdf" data-f="bkPdf" ${S.f.bkPdf ? 'checked' : ''}> Incluir os PDFs originais (o arquivo fica bem maior)</label>
+    <div><button class="btn" data-a="exportBackup">Exportar backup</button></div>
+    <label class="field"><span>Restaurar a partir de um backup</span>${fileBox('backup', '.json,application/json', false)}</label>
+    ${S.files.backup?.length ? (S.confirm === 'restore'
+      ? `<div class="row"><button class="btn danger armed" data-a="importBackup">Substituir todos os dados deste aparelho</button><button class="btn ghost" data-a="arm" data-k="">Cancelar</button></div>`
+      : `<div><button class="btn" data-a="arm" data-k="restore">Restaurar backup</button></div>`) : ''}
+  </div>
+  <div class="card stack"><h2>Armazenamento</h2>
+    ${S.storageInfo ? `<p class="small num">${esc(S.storageInfo)}</p>` : ''}
+    <p class="small muted">No iPhone, use o app pela Tela de Início (Safari › Compartilhar › Adicionar à Tela de Início). Aberto apenas como site no Safari, o iOS pode apagar os dados após alguns dias sem uso. Exporte backups de vez em quando.</p>
+  </div>`;
+}
+
+</script>
+</body>
+</html>
